@@ -1,0 +1,9 @@
+.git
+__pycache__
+Dockerfile
+.dockerignore
+.idea
+.ipynb_checkpoints
+resp.txt
+*.ipynb
+.streamlit

@@ -1,0 +1,11 @@
+name: vkvideos
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.13
+  - pip
+  - requests
+  - jupyterlab
+  - pip:
+    - streamlit
