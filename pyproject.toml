@@ -1,0 +1,10 @@
+[project]
+name = "vkvideo-scrapper"
+version = "0.1.0"
+requires-python = ">=3.13"
+dependencies = [
+    "requests",
+    "jupyterlab",
+    "python-dotenv",
+    "streamlit",
+]
