@@ -83,11 +83,11 @@ def artist(prompt: str):
     if not prompt:
         return None
     response = gpt.images.generate(
-        model="dall-e-3",
+        model="gpt-image-1-mini",
         prompt=prompt,
         size="1024x1024",
         n=1,
-        response_format="b64_json",
+        # response_format="b64_json",
     )
     image_data = base64.b64decode(response.data[0].b64_json)
     img = Image.open(BytesIO(image_data))
