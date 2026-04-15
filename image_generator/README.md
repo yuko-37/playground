@@ -6,6 +6,8 @@ A Gradio app that turns a conversation into an AI-generated image.
 - The assistant asks about subject, style, lighting, and mood
 - Once ready, it extracts a polished prompt and sends it to image generation model
 
+<img width="800" height="775" alt="Screenshot 2026-04-15 at 12 59 17" src="https://github.com/user-attachments/assets/67c48595-6682-4399-ab8e-14392b588a6a" />
+
 ### Run with Docker
 
 ```bash
