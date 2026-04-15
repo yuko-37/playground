@@ -1,0 +1,29 @@
+services:
+  llama:
+    image: ollama/ollama:latest
+    container_name: ollama-docker
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama:/root/.ollama
+
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "ollama serve &
+       sleep 5 &&
+       ollama pull llama3.2 &&
+       wait"
+
+  app:
+    build: .
+    container_name: gradio-app
+    ports:
+      - "7860:7860"
+    depends_on:
+      - llama
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      OLLAMA_BASE_URL: 'http://ollama-docker:11434/v1'
+
+volumes:
+  ollama:
