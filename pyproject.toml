@@ -1,5 +1,5 @@
 [project]
-name = "vkvideo-scrapper"
+name = "ai-toolbox"
 version = "0.1.0"
 requires-python = ">=3.13"
 dependencies = [
@@ -10,4 +10,5 @@ dependencies = [
     "openai>=2.31.0",
     "gradio>=6.11.0",
     "ipywidgets>=8.1.8",
+    "mlx-whisper>=0.4.3",
 ]
