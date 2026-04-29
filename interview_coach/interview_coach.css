@@ -1,0 +1,8 @@
+.gr_btn{
+    max-width: 80px;
+    min-width: 40px;
+}
+
+.chatbot {
+    height: 60vh !important;
+}
