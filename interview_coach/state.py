@@ -1,11 +1,18 @@
 import os
 from openai import OpenAI
 from dotenv import load_dotenv
+from agents import AsyncOpenAI
+
 
 load_dotenv()
 
 openai = OpenAI()
 ollama = OpenAI(api_key='ollama', base_url="http://localhost:11434/v1")
+ollama_async_client = AsyncOpenAI(
+    base_url="http://localhost:11434/v1",
+    api_key="ollama",
+)
+
 
 MODELS = {
     'GPT 5.4 mini': 'gpt-5.4-mini',

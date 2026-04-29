@@ -3,8 +3,9 @@ from functools import partial
 from state import MODELS, EVAL_MODELS
 from ui_event_handlers import (
     msg_submit, msg_change, transcribe, sysprompt_update,
-    evaluate, render_usages, render_sys_prompts,
+    render_usages, render_sys_prompts,
     clear_coach_usage, clear_ev_usage,
+    evaluate,
 )
 from utils import set_sys_prompts, load_css
 

@@ -1,21 +1,16 @@
 import json
 import gradio as gr
 import mlx_whisper
-from state import openai, ollama, MODELS, settings, usage, settings_file
-from llms import ask_openai, stream_openai
+import llms
+
+from state import MODELS, EVAL_MODELS, settings, usage, settings_file
 
 
-def msg_submit(message, history, model='GPT 5 mini'):
+async def msg_submit(message, history, model='GPT 5 mini'):
     if message:
         model_name = MODELS[model]
-        if model_name.startswith('gpt'):
-            yield from stream_openai(openai, model_name, message, history)
-        elif model_name.startswith('llama'):
-            yield from stream_openai(ollama, model_name, message, history)
-        else:
-            error = f"Error: unknown model name: {model_name}"
-            print(error)
-            gr.Error(error)
+        async for hist, usage_text in llms.stream_coach(model_name, message, history):
+            yield hist, usage_text
     else:
         yield history, gr.update()
 
@@ -59,20 +54,17 @@ def sysprompt_update(prompt, key='COACH_PROMPT'):
     return prompt
 
 
-def evaluate(message, history, model):
+async def evaluate(message, history, model):
     if not message or model == 'no eval':
         print('Skip evaluation...')
         return "", history, gr.update()
-
-    model_name = MODELS[model]
-    if model_name.startswith('gpt'):
-        model_resp, usage_text = ask_openai(openai, model_name, message)
-    elif model_name.startswith('llama'):
-        model_resp, usage_text = ask_openai(ollama, model_name, message)
-    else:
-        error = f"Error: unknown model name: {model_name}"
-        print(error)
-        gr.Error(error)
+        
+    try:
+        model_name = EVAL_MODELS[model]
+        model_resp, usage_text = await llms.evaluate(model_name, message)
+    except Exception as e:
+        print(e)
+        gr.Error('Failed to do evaluation.')
         return "", history, gr.update()
 
     evaluation = f"Message: `{message}`\n{model_resp}"
