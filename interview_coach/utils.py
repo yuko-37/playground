@@ -3,14 +3,10 @@ import json
 from state import settings, settings_file
 
 
-def set_sys_prompts():
+def load_settings():
     with open(settings_file, 'r') as f:
         settings_obj = json.load(f)
-
-    settings['COACH_PROMPT'] = settings_obj.get('COACH_PROMPT',
-                                                 settings_obj.get('DEFAULT_COACH_PROMPT'))
-    settings['ENGLISH_PROMPT'] = settings_obj.get('ENGLISH_PROMPT',
-                                                   settings_obj.get('DEFAULT_ENGLISH_PROMPT'))
+    settings.update(settings_obj)
 
 
 def load_css():

@@ -15,10 +15,14 @@ ollama_async_client = AsyncOpenAI(
 
 
 MODELS = {
+    'GPT 5 nano': 'gpt-5-nano',
+    'GPT 4o mini': 'gpt-4o-mini',
     'GPT 5.4 mini': 'gpt-5.4-mini',
-    'GPT 5 mini': 'gpt-5-mini',
-    'llama 3.2': 'llama3.2',
+    'GPT 5.4 nano': 'gpt-5.4-nano',
+    'GPT 5.4': 'gpt-5.4',
+    'llama 3.2': 'llama3.2'
 }
+COACH_MODELS = {**MODELS, 'no coach': 'none'}
 EVAL_MODELS = {**MODELS, 'no eval': 'none'}
 
 settings = {}

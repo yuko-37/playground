@@ -1,7 +1,7 @@
 [project]
 name = "ai-toolbox"
 version = "0.1.0"
-requires-python = ">=3.13"
+requires-python = ">=3.12"
 dependencies = [
     "requests",
     "jupyterlab",
@@ -13,4 +13,5 @@ dependencies = [
     "mlx-whisper>=0.4.3",
     "openai-agents>=0.14.4",
     "sendgrid>=6.12.5",
+    "anthropic>=0.49.0",
 ]

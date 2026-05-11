@@ -3,16 +3,17 @@ import gradio as gr
 import mlx_whisper
 import llms
 
-from state import MODELS, EVAL_MODELS, settings, usage, settings_file
+from state import COACH_MODELS, EVAL_MODELS, settings, usage, settings_file
+from ui_formatter import format_usage, format_usage_with_tokens, format_evaluation
 
 
 async def msg_submit(message, history, model='GPT 5 mini'):
-    if message:
-        model_name = MODELS[model]
+    if model == 'no coach' or not message.strip():
+        yield history, gr.update()
+    else:
+        model_name = COACH_MODELS[model]
         async for hist, usage_text in llms.stream_coach(model_name, message, history):
             yield hist, usage_text
-    else:
-        yield history, gr.update()
 
 
 def msg_change(message):
@@ -55,41 +56,31 @@ def sysprompt_update(prompt, key='COACH_PROMPT'):
 
 
 async def evaluate(message, history, model):
-    if not message or model == 'no eval':
+    if model == 'no eval' or not message.strip():
         print('Skip evaluation...')
         return "", history, gr.update()
         
     try:
         model_name = EVAL_MODELS[model]
-        model_resp, usage_text = await llms.evaluate(model_name, message)
+        evaluation_result, tokens = await llms.evaluate(model_name, message)
     except Exception as e:
         print(e)
         gr.Error('Failed to do evaluation.')
         return "", history, gr.update()
 
-    evaluation = f"Message: `{message}`\n{model_resp}"
-    new_text = f"{evaluation}\n---\n{history}" if history else evaluation
+    evaluation_text = format_evaluation(message, history, evaluation_result)
+    usage_text = format_usage_with_tokens(tokens)
 
-    return "", new_text, usage_text
-
-
-def format_usage(key='coach'):
-    def get(field):
-        return usage[f"{key}_{field}"]
-
-    return (
-        f"input {get('input'):,} | "
-        f"output {get('output'):,} | "
-        f"total {get('total'):,}"
-    )
+    return "", evaluation_text, usage_text
 
 
 def render_usages():
     return format_usage(), format_usage(key='ev')
 
 
-def render_sys_prompts():
-    return settings['COACH_PROMPT'], settings['ENGLISH_PROMPT']
+def render_settings():
+    return (settings['COACH_PROMPT'], settings['ENGLISH_PROMPT'],
+            settings['COACH_SELECTED_MODEL'], settings['EVAL_SELECTED_MODEL'])
 
 
 def clear_coach_usage():
@@ -106,3 +97,18 @@ def clear_ev_usage():
     usage["ev_total"] = 0
     usage["ev_$"] = 0
     return format_usage(key='ev')
+
+
+def clear_chat():
+    return []
+
+
+def model_update(model, prefix):
+    key = f'{prefix}_SELECTED_MODEL'
+    settings[key] = model
+    with open(settings_file, 'r') as f:
+        settings_obj = json.load(f)
+
+    settings_obj[key] = model
+    with open(settings_file, 'w') as f:
+        json.dump(settings_obj, f, ensure_ascii=False)
