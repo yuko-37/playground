@@ -57,7 +57,7 @@ def sysprompt_update(prompt, key='COACH_PROMPT'):
 
 
 async def evaluate(history, model):
-    message = state['MSG_FOR_EVALUATION']
+    message = state.get('MSG_FOR_EVALUATION', '')
     if model == 'no eval' or not message.strip():
         print('Skip evaluation...')
         return "", history, gr.update()
