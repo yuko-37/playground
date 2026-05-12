@@ -3,17 +3,18 @@ import gradio as gr
 import mlx_whisper
 import llms
 
-from state import COACH_MODELS, EVAL_MODELS, settings, usage, settings_file
+from state import COACH_MODELS, EVAL_MODELS, settings, usage, settings_file, state
 from ui_formatter import format_usage, format_usage_with_tokens, format_evaluation
 
 
 async def msg_submit(message, history, model='GPT 5 mini'):
     if model == 'no coach' or not message.strip():
-        yield history, gr.update()
+        yield "", history, gr.update()
     else:
+        state['MSG_FOR_EVALUATION'] = message
         model_name = COACH_MODELS[model]
         async for hist, usage_text in llms.stream_coach(model_name, message, history):
-            yield hist, usage_text
+            yield "", hist, usage_text
 
 
 def msg_change(message):
@@ -55,7 +56,8 @@ def sysprompt_update(prompt, key='COACH_PROMPT'):
     return prompt
 
 
-async def evaluate(message, history, model):
+async def evaluate(history, model):
+    message = state['MSG_FOR_EVALUATION']
     if model == 'no eval' or not message.strip():
         print('Skip evaluation...')
         return "", history, gr.update()
@@ -71,7 +73,7 @@ async def evaluate(message, history, model):
     evaluation_text = format_evaluation(message, history, evaluation_result)
     usage_text = format_usage_with_tokens(tokens)
 
-    return "", evaluation_text, usage_text
+    return evaluation_text, usage_text
 
 
 def render_usages():

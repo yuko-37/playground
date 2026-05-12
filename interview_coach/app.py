@@ -62,11 +62,12 @@ with gr.Blocks() as ui:
     ui.load(render_settings, outputs=[sysprompt_inp, ev_sysprompt_inp, coach_model, eval_model])
 
     msg.change(msg_change, [msg], [send_btn])
-    msg.submit(msg_submit, [msg, chatbot, coach_model], [chatbot, coach_usage]
-              ).then(evaluate, [msg, ev_mrk, eval_model], [msg, ev_mrk, ev_usage])
 
-    send_btn.click(msg_submit, [msg, chatbot, coach_model], [chatbot, coach_usage]
-              ).then(evaluate, [msg, ev_mrk, eval_model], [msg, ev_mrk, ev_usage])
+    msg.submit(msg_submit, [msg, chatbot, coach_model], [msg, chatbot, coach_usage]
+              ).then(evaluate, [ev_mrk, eval_model], [ev_mrk, ev_usage])
+
+    send_btn.click(msg_submit, [msg, chatbot, coach_model], [msg, chatbot, coach_usage]
+              ).then(evaluate, [ev_mrk, eval_model], [ev_mrk, ev_usage])
 
     audio_msg.input(transcribe, inputs=[msg, audio_msg], outputs=[msg, audio_msg]
                    ).then(fn=None, js="() => document.querySelector('#msg textarea')?.focus()")
