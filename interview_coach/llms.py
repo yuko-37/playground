@@ -3,6 +3,7 @@ import gradio as gr
 from state import usage
 from evaluator_agent import evaluator_agent, EvaluationResult
 from coach_agent import coach_agent
+from coach_manager import coach_manager
 from agents import Runner, trace, gen_trace_id
 from openai.types.responses import ResponseTextDeltaEvent, ResponseCompletedEvent
 
@@ -36,7 +37,7 @@ async def stream_coach(model, message, history):
                 for record in history]
     messages.append({"role": "user", "content": message})
 
-    coach = coach_agent(model)
+    coach = coach_manager(model)
     trace_id = gen_trace_id()
     with trace('Coach manager', trace_id=trace_id):
         result = Runner.run_streamed(coach, messages)
