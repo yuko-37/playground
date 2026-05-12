@@ -14,8 +14,9 @@ css = load_css()
 
 
 with gr.Blocks() as ui:
+    active_tab = gr.State("coach")
     with gr.Tabs():
-        with gr.Tab("Interview coach"):
+        with gr.Tab("Interview coach") as coach_tab:
             with gr.Row():
                 with gr.Sidebar(open=False):
                     gr.Markdown("### Settings")
@@ -27,7 +28,7 @@ with gr.Blocks() as ui:
                         clear_coach_usage_btn = gr.Button(value='Clear', elem_classes='gr_btn')
                     chatbot = gr.Chatbot(elem_classes='chatbot')
 
-        with gr.Tab("English evaluation"):
+        with gr.Tab("English evaluation") as eval_tab:
             with gr.Row():
                 with gr.Sidebar(open=False):
                     gr.Markdown("### Settings")
@@ -78,7 +79,10 @@ with gr.Blocks() as ui:
     ev_sysprompt_inp.submit(fn=partial(sysprompt_update, key='ENGLISH_PROMPT'), inputs=[ev_sysprompt_inp], outputs=ev_sysprompt_inp)
     ev_sysprompt_update_btn.click(fn=partial(sysprompt_update, key='ENGLISH_PROMPT'), inputs=[ev_sysprompt_inp], outputs=ev_sysprompt_inp)
 
-    clear_btn.click(clear_chat, inputs=None, outputs=chatbot, queue=False)
+    coach_tab.select(fn=lambda: "coach", outputs=active_tab)
+    eval_tab.select(fn=lambda: "evaluation", outputs=active_tab)
+
+    clear_btn.click(clear_chat, inputs=active_tab, outputs=[chatbot, ev_mrk], queue=False)
     clear_coach_usage_btn.click(clear_coach_usage, inputs=None, outputs=coach_usage, queue=False)
     clear_ev_usage_btn.click(clear_ev_usage, inputs=None, outputs=ev_usage, queue=False)
 

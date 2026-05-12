@@ -64,4 +64,4 @@ async def stream_coach(model, message, history):
                     usage_text = (f"inputs + {u.input_tokens}: {usage['coach_input']:,} | "
                                   f"output + {u.output_tokens}: {usage['coach_output']:,} | "
                                   f"total + {u.total_tokens}: {usage['coach_total']:,}")
-                    yield history, usage_text
+                    yield gr.update(), usage_text

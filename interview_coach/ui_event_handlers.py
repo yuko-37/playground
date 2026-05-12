@@ -8,10 +8,10 @@ from ui_formatter import format_usage, format_usage_with_tokens, format_evaluati
 
 
 async def msg_submit(message, history, model='GPT 5 mini'):
+    state['MSG_FOR_EVALUATION'] = message
     if model == 'no coach' or not message.strip():
         yield "", history, gr.update()
     else:
-        state['MSG_FOR_EVALUATION'] = message
         model_name = COACH_MODELS[model]
         async for hist, usage_text in llms.stream_coach(model_name, message, history):
             yield "", hist, usage_text
@@ -60,7 +60,7 @@ async def evaluate(history, model):
     message = state.get('MSG_FOR_EVALUATION', '')
     if model == 'no eval' or not message.strip():
         print('Skip evaluation...')
-        return "", history, gr.update()
+        return history, gr.update()
         
     try:
         model_name = EVAL_MODELS[model]
@@ -68,7 +68,7 @@ async def evaluate(history, model):
     except Exception as e:
         print(e)
         gr.Error('Failed to do evaluation.')
-        return "", history, gr.update()
+        return history, gr.update()
 
     evaluation_text = format_evaluation(message, history, evaluation_result)
     usage_text = format_usage_with_tokens(tokens)
@@ -101,8 +101,13 @@ def clear_ev_usage():
     return format_usage(key='ev')
 
 
-def clear_chat():
-    return []
+def clear_chat(active_tab):
+    if active_tab == 'coach':
+        return [], gr.update()
+    if active_tab == 'evaluation':
+        return gr.update(), ""
+    gr.Warning(f"Unknown tab: {active_tab}")
+    return gr.update(), gr.update()
 
 
 def model_update(model, prefix):
@@ -114,3 +119,4 @@ def model_update(model, prefix):
     settings_obj[key] = model
     with open(settings_file, 'w') as f:
         json.dump(settings_obj, f, ensure_ascii=False)
+
