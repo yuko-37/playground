@@ -1,6 +1,6 @@
 from agents import Agent, OpenAIChatCompletionsModel
 from state import settings, ollama_async_client
-from search_manager_agent import search_manager_agent
+from myagents.search_manager_agent import search_manager_agent
 
 
 COACH_MANAGER_PROMPT = """

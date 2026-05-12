@@ -1,5 +1,5 @@
 from agents import Agent
-from search_agent import search_agent
+from myagents.search_agent import search_agent
 
 
 SEARCH_MANAGER_PROMPT = """

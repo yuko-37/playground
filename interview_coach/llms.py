@@ -1,9 +1,9 @@
 import gradio as gr
 
 from state import usage
-from evaluator_agent import evaluator_agent, EvaluationResult
-from coach_agent import coach_agent
-from coach_manager import coach_manager
+from myagents.evaluator_agent import evaluator_agent, EvaluationResult
+# from myagents.coach_agent import coach_agent
+from myagents.coach_manager import coach_manager
 from agents import Runner, trace, gen_trace_id
 from openai.types.responses import ResponseTextDeltaEvent, ResponseCompletedEvent
 

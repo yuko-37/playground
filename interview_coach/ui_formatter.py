@@ -1,5 +1,5 @@
 from state import usage
-from evaluator_agent import EvaluationResult
+from myagents.evaluator_agent import EvaluationResult
 
 
 def format_usage(key='coach'):
