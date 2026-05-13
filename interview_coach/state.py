@@ -1,4 +1,5 @@
 import os
+import json
 from openai import OpenAI
 from dotenv import load_dotenv
 from agents import AsyncOpenAI
@@ -13,17 +14,14 @@ ollama_async_client = AsyncOpenAI(
     api_key="ollama",
 )
 
+models_file = os.path.join(os.path.dirname(__file__), 'models.json')
 
-MODELS = {
-    'GPT 5 nano': 'gpt-5-nano',
-    'GPT 4o mini': 'gpt-4o-mini',
-    'GPT 5.4 mini': 'gpt-5.4-mini',
-    'GPT 5.4 nano': 'gpt-5.4-nano',
-    'GPT 5.4': 'gpt-5.4',
-    'llama 3.2': 'llama3.2'
-}
-COACH_MODELS = {**MODELS, 'no coach': 'none'}
-EVAL_MODELS = {**MODELS, 'no eval': 'none'}
+with open(models_file, 'r') as f:
+    MODELS = json.load(f)
+
+
+COACH_MODELS = {**MODELS, 'no coach': ['none']}
+EVAL_MODELS = {**MODELS, 'no eval': ['none']}
 
 settings = {}
 usage = {

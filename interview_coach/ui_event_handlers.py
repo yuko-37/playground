@@ -12,9 +12,9 @@ async def msg_submit(message, history, model='GPT 5 mini'):
     if model == 'no coach' or not message.strip():
         yield "", history, gr.update()
     else:
-        model_name = COACH_MODELS[model]
-        async for hist, usage_text in llms.stream_coach(model_name, message, history):
-            yield "", hist, usage_text
+        model_name = COACH_MODELS[model][0]
+        async for hist, tokens in llms.stream_coach(model_name, message, history):
+            yield "", hist, format_usage_with_tokens(tokens, model)
 
 
 def msg_change(message):
@@ -61,9 +61,9 @@ async def evaluate(history, model):
     if model == 'no eval' or not message.strip():
         print('Skip evaluation...')
         return history, gr.update()
-        
+
+    model_name = EVAL_MODELS[model][0]
     try:
-        model_name = EVAL_MODELS[model]
         evaluation_result, tokens = await llms.evaluate(model_name, message)
     except Exception as e:
         print(e)
@@ -71,7 +71,7 @@ async def evaluate(history, model):
         return history, gr.update()
 
     evaluation_text = format_evaluation(message, history, evaluation_result)
-    usage_text = format_usage_with_tokens(tokens)
+    usage_text = format_usage_with_tokens(tokens, model, prefix='ev')
 
     return evaluation_text, usage_text
 

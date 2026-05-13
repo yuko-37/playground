@@ -46,6 +46,12 @@ async def stream_coach(model, message, history):
 
     async for event in result.stream_events():
 
+        tokens = {
+            'input_tokens': 0,
+            'output_tokens': 0,
+            'total_tokens': 0,
+        }
+
         if event.type == "raw_response_event":
             if isinstance(event.data, ResponseTextDeltaEvent):
                 partial_reply += event.data.delta
@@ -53,15 +59,18 @@ async def stream_coach(model, message, history):
                     {"role": "user", "content": [{"text": message, "type": "text"}]},
                     {"role": "assistant", "content": [{"text": partial_reply, "type": "text"}]},
                 ]
-                yield history + history_chunk, gr.update()
+                yield history + history_chunk, tokens
 
             elif isinstance(event.data, ResponseCompletedEvent) and hasattr(event.data.response, 'usage'):
                 u = event.data.response.usage
+
                 if u:
+                    tokens['input_tokens'] += u.input_tokens
+                    tokens['output_tokens'] += u.output_tokens
+                    tokens['total_tokens'] += u.total_tokens
+
                     usage['coach_input'] += u.input_tokens
                     usage['coach_output'] += u.output_tokens
                     usage['coach_total'] += u.total_tokens
-                    usage_text = (f"inputs + {u.input_tokens}: {usage['coach_input']:,} | "
-                                  f"output + {u.output_tokens}: {usage['coach_output']:,} | "
-                                  f"total + {u.total_tokens}: {usage['coach_total']:,}")
-                    yield gr.update(), usage_text
+
+                    yield gr.update(), tokens

@@ -1,4 +1,4 @@
-from state import usage
+from state import usage, MODELS
 from myagents.evaluator_agent import EvaluationResult
 
 
@@ -13,11 +13,30 @@ def format_usage(key='coach'):
     )
 
 
-def format_usage_with_tokens(tokens):
-    usage_text = (f"inputs + {tokens['input_tokens']}: {usage['ev_input']:,} | "
-                  f"output + {tokens['output_tokens']}: {usage['ev_output']:,} | "
-                  f"total + {tokens['total_tokens']}: {usage['ev_total']:,}")
+def format_usage_with_tokens(tokens, model, prefix='coach'):
+    def get(field):
+        return usage[f"{prefix}_{field}"]
+
+    calculate_sum(model, prefix)
+
+    usage_text = (f"inputs + {tokens['input_tokens']}: {get('input'):,} | "
+                  f"output + {tokens['output_tokens']}: {get('output'):,} | "
+                  f"total + {tokens['total_tokens']}: {get('total'):,} | "
+                  f"${get('$'):.4f}")
+
     return usage_text
+
+
+def calculate_sum(model, prefix):
+    def get(field):
+        return usage[f"{prefix}_{field}"]
+    def set_money(value):
+        usage[f"{prefix}_$"] = value
+
+    prices = MODELS[model]
+    money = get('input') * float(prices[1]) + get('output') * float(prices[2])
+    money /= 1_000_000
+    set_money(money)
 
 
 def format_evaluation(message: str, history: str, evaluation_result: EvaluationResult):
