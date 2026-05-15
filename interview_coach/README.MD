@@ -13,3 +13,6 @@ Interview Coach is a dual-function application that helps users prepare for inte
 - 📊 **Usage Tracking** - Monitor token usage and API costs for both coaching and evaluation functions
 - ⚙️ **Customizable Prompts** - Update system prompts for different coaching and evaluation strategies
 - 🔄 **Streaming Responses** - Real-time streaming of coach responses for immediate feedback
+
+![Coach tab](coach_tab.png)
+![Evaluation tab](evaluation_tab.png)
