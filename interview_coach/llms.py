@@ -11,8 +11,13 @@ from openai.types.responses import ResponseTextDeltaEvent, ResponseCompletedEven
 async def evaluate(model, message):
     evaluator = evaluator_agent(model)
     result = await Runner.run(evaluator, message)
-    evaluation_result = result.final_output_as(EvaluationResult)
+    evaluation = result.final_output_as(EvaluationResult)
+    tokens = _parse_evaluation_result(result)
+    _update_global_usage(tokens, 'ev')
+    return evaluation, tokens
 
+
+def _parse_evaluation_result(result):
     tokens = {
         'input_tokens':0,
         'output_tokens': 0,
@@ -25,25 +30,31 @@ async def evaluate(model, message):
         tokens['output_tokens'] += u.output_tokens
         tokens['total_tokens'] += u.total_tokens
 
-    usage['ev_input'] += tokens['input_tokens']
-    usage['ev_output'] += tokens['output_tokens']
-    usage['ev_total'] += tokens['total_tokens']
+    return tokens
 
-    return evaluation_result, tokens
+
+def _update_global_usage(tokens, prefix):
+    usage[f'{prefix}_input'] += tokens['input_tokens']
+    usage[f'{prefix}_output'] += tokens['output_tokens']
+    usage[f'{prefix}_total'] += tokens['total_tokens']
 
 
 async def stream_coach(model, message, history):
     messages = [{"role": record["role"], "content": record["content"][0]["text"]}
                 for record in history]
     messages.append({"role": "user", "content": message})
+    history.append({"role": "user", "content": [{"text": message, "type": "text"}]})
 
     coach = coach_manager(model)
     trace_id = gen_trace_id()
     with trace('Coach manager', trace_id=trace_id):
         result = Runner.run_streamed(coach, messages)
+    async for hist, tokens in _parse_coach_result(result, history):
+        yield hist, tokens
 
+
+async def _parse_coach_result(result, history):
     partial_reply = ""
-
     async for event in result.stream_events():
 
         tokens = {
@@ -55,10 +66,7 @@ async def stream_coach(model, message, history):
         if event.type == "raw_response_event":
             if isinstance(event.data, ResponseTextDeltaEvent):
                 partial_reply += event.data.delta
-                history_chunk = [
-                    {"role": "user", "content": [{"text": message, "type": "text"}]},
-                    {"role": "assistant", "content": [{"text": partial_reply, "type": "text"}]},
-                ]
+                history_chunk = [{"role": "assistant", "content": [{"text": partial_reply, "type": "text"}]}]
                 yield history + history_chunk, tokens
 
             elif isinstance(event.data, ResponseCompletedEvent) and hasattr(event.data.response, 'usage'):
@@ -69,8 +77,6 @@ async def stream_coach(model, message, history):
                     tokens['output_tokens'] += u.output_tokens
                     tokens['total_tokens'] += u.total_tokens
 
-                    usage['coach_input'] += u.input_tokens
-                    usage['coach_output'] += u.output_tokens
-                    usage['coach_total'] += u.total_tokens
+                    _update_global_usage(tokens, 'coach')
 
                     yield gr.update(), tokens
