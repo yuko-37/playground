@@ -30,5 +30,6 @@ usage = {
 }
 
 settings_file = os.path.join(os.path.dirname(__file__), 'settings.json')
+user_settings_file = os.path.join(os.path.dirname(__file__), 'user_settings.json')
 
 state = {}

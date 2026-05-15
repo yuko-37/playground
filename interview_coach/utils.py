@@ -1,12 +1,18 @@
 import os
 import json
-from state import settings, settings_file
+from state import settings, settings_file, user_settings_file
 
 
 def load_settings():
-    with open(settings_file, 'r') as f:
+    file_path = user_settings_file if os.path.exists(user_settings_file) else settings_file
+    with open(file_path, 'r') as f:
         settings_obj = json.load(f)
     settings.update(settings_obj)
+
+
+def update_user_settings_file():
+    with open(user_settings_file, 'w') as f:
+        json.dump(settings, f, ensure_ascii=False)
 
 
 def load_css():

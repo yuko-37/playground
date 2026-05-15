@@ -1,10 +1,10 @@
-import json
 import gradio as gr
 import mlx_whisper
 import llms
 
-from state import COACH_MODELS, EVAL_MODELS, settings, usage, settings_file, state
+from state import COACH_MODELS, EVAL_MODELS, settings, usage, state
 from ui_formatter import format_usage, format_usage_with_tokens, format_evaluation
+from utils import update_user_settings_file
 
 
 async def msg_submit(message, history, model='GPT 5 mini'):
@@ -38,17 +38,10 @@ def transcribe(msg, audio):
 def sysprompt_update(prompt, key='COACH_PROMPT'):
     if key in settings:
         settings[key] = prompt
-        with open(settings_file, 'r') as f:
-            settings_obj = json.load(f)
-
-        settings_obj[key] = prompt
-        with open(settings_file, 'w') as f:
-            json.dump(settings_obj, f, ensure_ascii=False)
-
-        if key == 'COACH_PROMPT':
-            gr.Info("Coach system prompt updated.")
-        elif key == 'ENGLISH_PROMPT':
-            gr.Info("English evaluation system prompt updated.")
+        update_user_settings_file()
+        info_str = "Coach system prompt updated." if key == 'COACH_PROMPT' else \
+            "English evaluation system prompt updated."
+        gr.Info(info_str)
     else:
         gr.Warning(f'Failed to update: unknown setting {key}.')
         return gr.update()
@@ -113,10 +106,4 @@ def clear_chat(active_tab):
 def model_update(model, prefix):
     key = f'{prefix}_SELECTED_MODEL'
     settings[key] = model
-    with open(settings_file, 'r') as f:
-        settings_obj = json.load(f)
-
-    settings_obj[key] = model
-    with open(settings_file, 'w') as f:
-        json.dump(settings_obj, f, ensure_ascii=False)
-
+    update_user_settings_file()
